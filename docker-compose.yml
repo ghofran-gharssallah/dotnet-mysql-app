@@ -1,0 +1,33 @@
+services:
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: "123"
+      MYSQL_DATABASE: myDB
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - appnet
+
+  dotnet-app:
+    image: ghofan/dotnet-mysql-app:${TAG:-latest}
+    build: .
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_NAME: myDB
+      DB_USER: root
+      DB_PWD: "123"
+    networks:
+      - appnet
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+
+volumes:
+  db_data:
+
+networks:
+  appnet:
